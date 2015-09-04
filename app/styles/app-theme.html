@@ -53,11 +53,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     border-bottom: var(--drawer-toolbar-border-color);
   }
 
-  paper-scroll-header-panel {
+  body /deep/ paper-scroll-header-panel {
     height: 100%;
   }
 
-  paper-material {
+  body /deep/ paper-material {
     border-radius: 2px;
     height: 100%;
     padding: 16px 0 16px 0;
@@ -66,16 +66,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     background: white;
   }
 
-  paper-menu iron-icon {
+  body /deep/ paper-menu /deep/ iron-icon {
     margin-right: 33px;
     opacity: 0.54;
   }
 
-  .paper-menu > .iron-selected {
+  body /deep/ .paper-menu > .iron-selected {
     color: var(--default-primary-color);
   }
 
-  paper-menu a {
+  body /deep/ paper-menu /deep/ a {
     text-decoration: none;
     color: var(--menu-link-color);
     display: -ms-flexbox;
@@ -97,7 +97,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     padding: 0 16px;
   }
 
-  paper-toolbar.tall .app-name {
+  body /deep/ paper-toolbar.tall .app-name {
     font-size: 40px;
     font-weight: 300;
     /* Required for main area's paper-scroll-header-panel custom condensing transformation */
@@ -132,7 +132,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   /* Small */
   @media (max-width: 600px) {
 
-    paper-material {
+  /deep/ paper-material {
       --menu-container-display: none;
       width: calc(97.33% - 32px);
       padding-left: 16px;
@@ -165,7 +165,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   /* Tablet+ */
   @media (min-width: 601px) {
 
-    paper-material {
+  body /deep/ paper-material {
       width: calc(98% - 46px);
       margin-bottom: 32px;
       padding-left: 30px;
