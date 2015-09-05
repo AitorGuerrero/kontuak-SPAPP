@@ -20,12 +20,22 @@
                     on-iron-form-error="handleError"
                     on-iron-form-submit="handleSubmit">
                 <input is="aitgud-generated-uuid" name="movement[id]" />
-                <paper-input name="movement[concept]" label="Concept"></paper-input>
-                <paper-input-container>
+                <paper-input name="movement[concept]" label="Concept" required>
+                </paper-input>
+                <paper-input-container name="movement[amount]" required>
+                    <div prefix>- </div>
+                    <div suffix>€</div>
                     <label>Amount</label>
                     <input is="iron-input" name="movement[amount]" type="number" min="0" step="0.01">
                 </paper-input-container>
-                <paper-input name="movement[date]" label="Date" type="date" value="{{today()}}"></paper-input>
+                <paper-input
+                        name="movement[date]"
+                        label="Date"
+                        type="date"
+                        value="[[today()]]"
+                        always-float-label
+                        required>
+                </paper-input>
                 <button type="submit">Create</button>
             </form>
         </paper-material>
@@ -49,7 +59,21 @@
                     var message;
                     try  {
                         if (request.request.xhr.readyState === 4 && request.request.xhr.response.message) {
-                            message = request.request.xhr.response.message;
+                            if (request.request.xhr.response.message == 'Validation Failed') {
+                                message = 'Check the fields';
+                                var errors = request.request.xhr.response.errors;
+                                for (var childName in errors.children) {
+                                    if (errors.children[childName].errors) {
+                                        var childErrors = errors.children[childName].errors;
+                                        for (var errorMessage in childErrors) {
+                                            var input = this.querySelector('paper-input-container[name="movement['+ childName +']"]');
+                                            input.pattern = new RegExp('[^' + input.value + ']');
+                                        }
+                                    }
+                                }
+                            } else {
+                                message = request.request.xhr.response.message;
+                            }
                         } else {
                             message = request.error;
                         }

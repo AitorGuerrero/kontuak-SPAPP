@@ -1,4 +1,27 @@
 <dom-module id="kontuak-historic-panel">
+    <style>
+        table {
+            width: 100%;
+        }
+        td.number {
+            text-align: right;
+        }
+        td.date {
+            text-align: center;
+        }
+        thead {
+            background-color: #eee;
+        }
+        th {
+            padding: 0.8em 1em;
+        }
+        td {
+            padding: 0.8em 0.5em;
+        }
+        tbody tr:hover {
+            background-color: #fafafa;
+        }
+    </style>
     <template>
         <iron-ajax
                 auto
@@ -11,19 +34,23 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Concept</th>
-                        <th>Amount</th>
-                        <th>Date</th>
-                        <th>Total</th>
+                        <th class="movement-date">Date</th>
+                        <th class="movement-concept">Concept</th>
+                        <th class="movement-amount">Amount</th>
+                        <th class="movement-total">Total</th>
                     </tr>
                 </thead>
                 <tbody>
-                <template is="dom-repeat" items="{{movements}}">
+                <template is="dom-repeat" items="[[movements]]">
                     <tr>
-                        <td>{{item.concept}}</td>
-                        <td>{{item.amount}}</td>
-                        <td>{{item.date}}</td>
-                        <td>{{item.totalAmount}}</td>
+                        <td class="movement-date date">{{item.date}}</td>
+                        <td class="movement-concept">{{item.concept}}</td>
+                        <td class="movement-amount number">
+                            <span class="sign">{{sign(item.amount)}}</span>
+                            <span class="absolute-amount">{{abs(item.amount)}}</span>
+                            <span class="currency">€</span>
+                        </td>
+                        <td class="movement-total-amount number">{{item.totalAmount}}<span class="currency">€</span></td>
                     </tr>
                 </template>
                 </tbody>
@@ -42,6 +69,16 @@
                 },
                 handleResponse: function(e, request) {
                     this.movements = request.response;
+                },
+                sign: function(amount) {
+                    if (amount >= 0) {
+                        return '+';
+                    } else {
+                        return '-';
+                    }
+                },
+                abs: function(amount) {
+                    return Math.abs(amount);
                 }
             });
         })();
