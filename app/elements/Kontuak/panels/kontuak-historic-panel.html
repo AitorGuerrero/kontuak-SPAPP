@@ -1,14 +1,48 @@
 <dom-module id="kontuak-historic-panel">
     <template>
+        <iron-ajax
+                auto
+                url="http://127.0.0.1:8000/movements/history?limit=20"
+                handle-as="json"
+                on-response="handleResponse"
+                debounce-duration="3000"></iron-ajax>
         <paper-material elevation="1">
-            Historic
+            <h3>Historic</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Concept</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <template is="dom-repeat" items="{{movements}}">
+                    <tr>
+                        <td>{{item.concept}}</td>
+                        <td>{{item.amount}}</td>
+                        <td>{{item.date}}</td>
+                        <td>{{item.totalAmount}}</td>
+                    </tr>
+                </template>
+                </tbody>
+            </table>
         </paper-material>
     </template>
 
     <script>
         (function() {
             Polymer({
-                is: 'kontuak-historic-panel'
+                is: 'kontuak-historic-panel',
+                properties: {
+                    movements: {
+                        type: Array
+                    }
+                },
+                handleResponse: function(e, request) {
+                    this.movements = request.response;
+                }
             });
         })();
     </script>

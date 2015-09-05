@@ -25,7 +25,7 @@
                     <label>Amount</label>
                     <input is="iron-input" name="movement[amount]" type="number" min="0" step="0.01">
                 </paper-input-container>
-                <paper-input label="Date" name="movement[date]" type="date" noLabelFloat="true"></paper-input>
+                <paper-input name="movement[date]" label="Date" type="date" value="{{today()}}"></paper-input>
                 <button type="submit">Create</button>
             </form>
         </paper-material>
@@ -64,6 +64,12 @@
                 },
                 handleSubmit: function() {
                     this.$.errorMessage.classList.add(noErrorClass);
+                },
+                today: function() {
+                    var a = new Date();
+                    var month = a.getMonth();
+                    var date = a.getDate();
+                    return a.getFullYear() + '-' + (month < 10 ? '0' + month : month) + '-' + (date < 10 ? '0' + date : date);
                 }
             });
         })();
