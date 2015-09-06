@@ -24,7 +24,7 @@
     </style>
 
     <template>
-        <iron-ajax
+        <iron-ajax id="historicLoader"
                 auto
                 url="http://127.0.0.1:8000/movements/history?limit=20"
                 handle-as="json"
@@ -80,6 +80,9 @@
                 },
                 abs: function(amount) {
                     return Math.abs(amount);
+                },
+                reload: function() {
+                    this.$.historicLoader.generateRequest();
                 }
             });
         })();

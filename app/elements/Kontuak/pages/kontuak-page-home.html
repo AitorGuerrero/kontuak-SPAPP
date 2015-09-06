@@ -1,13 +1,16 @@
 <link rel="import" href="../panels/kontuak-historic-panel.html" >
 <dom-module id="kontuak-page-home">
     <template>
-        <kontuak-historic-panel></kontuak-historic-panel>
+        <kontuak-historic-panel id="historicPanel"></kontuak-historic-panel>
     </template>
 
     <script>
         (function() {
             Polymer({
-                is: 'kontuak-page-home'
+                is: 'kontuak-page-home',
+                reload: function() {
+                    this.$.historicPanel.reload();
+                }
             });
         })();
     </script>
