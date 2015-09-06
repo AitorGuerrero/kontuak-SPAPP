@@ -75,9 +75,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <span>Home</span>
           </a>
 
-          <a data-route="new-movement" href="/movements/new">
+          <a data-route="new-expending" href="/movements/new/expending">
             <iron-icon icon="icons:add-box"></iron-icon>
-            <span>New spent</span>
+            <span>New expending</span>
+          </a>
+
+          <a data-route="new-income" href="/movements/new/income">
+            <iron-icon icon="icons:add-box"></iron-icon>
+            <span>New income</span>
           </a>
         </paper-menu>
       </paper-scroll-header-panel>
@@ -114,8 +119,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <kontuak-page-home></kontuak-page-home>
             </section>
 
-            <section data-route="new-movement">
-              <kontuak-page-new-movement></kontuak-page-new-movement>
+            <section data-route="new-expending">
+              <kontuak-page-new-expending></kontuak-page-new-expending>
+            </section>
+
+            <section data-route="new-income">
+              <kontuak-page-new-income></kontuak-page-new-income>
             </section>
 
           </iron-pages>

@@ -1,0 +1,157 @@
+<link rel="import" href="../../aitgud/form/input/aitgud-generated-uuid.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input-container.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input-error.html">
+
+<dom-module id="kontuak-form-new-movement">
+
+    <style>
+        #errorMessage {
+            width: 100%;
+            text-align: left;
+        }
+        #errorMessage.no-error {
+            display: none;
+        }
+    </style>
+    <template>
+        <form
+                is="iron-form"
+                method="post"
+                action="http://127.0.0.1:8000/movements"
+                on-iron-form-response="handleResponse"
+                on-iron-form-error="handleError">
+            <div id="errorMessage" class$="[[computedErrorMessageClass(errorMessage)]]">{{errorMessage}}</div>
+            <input is="aitgud-generated-uuid" name="movement[id]" />
+            <input type="hidden" name="movement[amount]" value="[[realAmount(uiAmount)]]" />
+            <paper-input
+                    name="movement[concept]"
+                    label="Concept"
+                    invalid="[[isInvalid(serverErrors.concept)]]"
+                    error-message="[[serverErrors.concept]]"
+                    required >
+            </paper-input>
+            <paper-input-container
+                    invalid="[[isInvalid(serverErrors.amount)]]"
+                    required>
+                <template is="dom-if" if="[[isExpending]]">
+                    <div prefix>- </div>
+                </template>
+                <div suffix>€</div>
+                <label>Amount</label>
+                <input
+                        is="iron-input"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value="{{uiAmount::input}}"
+                        invalid="[[isInvalid(serverErrors.amount)]]">
+                <paper-input-error>[[serverErrors.amount]]</paper-input-error>
+            </paper-input-container>
+            <paper-input
+                    name="movement[date]"
+                    label="Date"
+                    type="date"
+                    value="[[today()]]"
+                    always-float-label
+                    invalid="[[isInvalid(serverErrors.date)]]"
+                    error-message="[[serverErrors.date]]"
+                    required >
+            </paper-input>
+            <button type="submit">Create</button>
+        </form>
+    </template>
+
+    <script>
+        (function() {
+            var noErrorClass = 'no-error';
+            var defaultErrorMessage = 'There have been an error communicating to the server';
+            var validationErrorMessage = 'Check the fields';
+            var serverValidationErrorMessage = 'Validation Failed';
+
+            Polymer({
+                is: 'kontuak-form-new-movement',
+                properties: {
+                    errorMessage: {
+                        type: String,
+                        value: ''
+                    },
+                    uiAmount: {
+                        type: String,
+                        value: ''
+                    },
+                    serverErrors: {
+                        type: Object,
+                        value: {}
+                    },
+                    isExpending: {
+                        type: Boolean,
+                        value: false
+                    }
+                },
+                attached: function() {
+                    this.$.errorMessage.innerText = defaultErrorMessage;
+                    this.$.errorMessage.classList.add(noErrorClass);
+                },
+                handleResponse: function() {
+                    page.redirect('/');
+                },
+                handleError: function(error, request) {
+                    var message;
+                    try  {
+                        if (request.request.xhr.readyState === 4 && request.request.xhr.response.message) {
+                            if (request.request.xhr.response.message == serverValidationErrorMessage) {
+                                message = validationErrorMessage;
+                                var errors = request.request.xhr.response.errors;
+                                for (var childName in errors.children) {
+                                    if (errors.children[childName].errors) {
+                                        var childErrors = errors.children[childName].errors;
+                                        for (var errorMessage in childErrors) {
+                                            this.set('serverErrors.' + childName, childErrors[errorMessage]);
+                                        }
+                                    }
+                                }
+                            } else {
+                                message = request.request.xhr.response.message;
+                            }
+                        } else {
+                            message = request.error;
+                        }
+                    } catch (e) {
+                        if (window.console) {
+                            console.error(e)
+                        }
+                        message = defaultErrorMessage;
+                    }
+                    this.set('errorMessage', message);
+                },
+                today: function() {
+                    var a = new Date();
+                    var month = a.getMonth() + 1;
+                    var date = a.getDate();
+                    return a.getFullYear() + '-' + (month < 10 ? '0' + month : month) + '-' + (date < 10 ? '0' + date : date);
+                },
+                computedErrorMessageClass: function(message) {
+                    if(message !== '') {
+                        return '';
+                    }
+                    return 'no-error';
+                },
+                isInvalid: function(error) {
+                    return typeof error !== 'undefined' && error;
+                },
+                realAmount: function(amount) {
+                    var translatedAmount = '';
+                    if (amount !== '') {
+                        translatedAmount = Math.abs(amount);
+                        if (this.isExpending) {
+                            translatedAmount = -translatedAmount;
+                        }
+                    }
+                    return translatedAmount;
+                }
+            });
+        })();
+    </script>
+</dom-module>

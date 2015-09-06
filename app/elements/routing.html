@@ -19,8 +19,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       app.route = 'home';
     });
 
-    page('/movements/new', function () {
-      app.route = 'new-movement';
+    page('/movements/new/expending', function () {
+      app.route = 'new-expending';
+    });
+
+    page('/movements/new/income', function () {
+      app.route = 'new-income';
     });
 
     // add #! before urls
