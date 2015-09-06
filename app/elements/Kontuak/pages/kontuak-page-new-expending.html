@@ -8,7 +8,14 @@
     <script>
         (function() {
             Polymer({
-                is: 'kontuak-page-new-expending'
+                is: 'kontuak-page-new-expending',
+                reload: function() {
+                    var node = this.querySelector('kontuak-new-expending-panel');
+                    node.parentNode.replaceChild(
+                            document.createElement('kontuak-new-expending-panel'),
+                            node
+                    );
+                }
             });
         })();
     </script>
