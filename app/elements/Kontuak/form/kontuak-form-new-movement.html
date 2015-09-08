@@ -16,12 +16,11 @@
         }
     </style>
     <template>
-        <form
+        <form id="movement-form"
                 is="iron-form"
                 method="post"
                 action="http://127.0.0.1:8000/movements"
-                on-iron-form-response="handleResponse"
-                on-iron-form-error="handleError">
+                on-iron-form-response="handleResponse" >
             <div id="errorMessage" class$="[[computedErrorMessageClass(errorMessage)]]">{{errorMessage}}</div>
             <input is="aitgud-generated-uuid" name="movement[id]" />
             <input type="hidden" name="movement[amount]" value="[[realAmount(uiAmount)]]" />
@@ -70,34 +69,31 @@
             var validationErrorMessage = 'Check the fields';
             var serverValidationErrorMessage = 'Validation Failed';
 
-            Polymer({
-                is: 'kontuak-form-new-movement',
+            var apiResourceFormBehaviour = {
                 properties: {
-                    errorMessage: {
-                        type: String,
-                        value: ''
-                    },
-                    uiAmount: {
-                        type: String,
-                        value: ''
-                    },
                     serverErrors: {
                         type: Object,
                         value: {}
                     },
-                    isExpending: {
-                        type: Boolean,
-                        value: false
+                    errorMessage: {
+                        type: String,
+                        value: ''
                     }
                 },
-                attached: function() {
-                    this.$.errorMessage.innerText = defaultErrorMessage;
-                    this.$.errorMessage.classList.add(noErrorClass);
+                listeners: {
+                    'movement-form.ironFormError': '_handleError'
                 },
-                handleResponse: function() {
-                    page.redirect('/');
+                isInvalid: function(error) {
+                    return typeof error !== 'undefined' && error;
                 },
-                handleError: function(error, request) {
+                computedErrorMessageClass: function(message) {
+                    if(message !== '') {
+                        return '';
+                    }
+                    return 'no-error';
+                },
+                _handleError: function(error, request) {
+                    console.log(this);
                     var message;
                     try  {
                         if (request.request.xhr.readyState === 4 && request.request.xhr.response.message) {
@@ -125,21 +121,30 @@
                         message = defaultErrorMessage;
                     }
                     this.set('errorMessage', message);
+                }
+            };
+
+            Polymer({
+                is: 'kontuak-form-new-movement',
+                behaviours: [apiResourceFormBehaviour],
+                properties: {
+                    uiAmount: {
+                        type: String,
+                        value: ''
+                    },
+                    isExpending: {
+                        type: Boolean,
+                        value: false
+                    }
+                },
+                handleResponse: function() {
+                    page.redirect('/');
                 },
                 today: function() {
                     var a = new Date();
                     var month = a.getMonth() + 1;
                     var date = a.getDate();
                     return a.getFullYear() + '-' + (month < 10 ? '0' + month : month) + '-' + (date < 10 ? '0' + date : date);
-                },
-                computedErrorMessageClass: function(message) {
-                    if(message !== '') {
-                        return '';
-                    }
-                    return 'no-error';
-                },
-                isInvalid: function(error) {
-                    return typeof error !== 'undefined' && error;
                 },
                 realAmount: function(amount) {
                     var translatedAmount = '';

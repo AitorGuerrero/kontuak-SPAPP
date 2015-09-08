@@ -1,3 +1,8 @@
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../../../bower_components/paper-toast/paper-toast.html">
+
 <dom-module id="kontuak-historic-panel">
     <style>
         table {
@@ -8,6 +13,9 @@
         }
         td.date {
             text-align: center;
+        }
+        td.options {
+            text-align: right;
         }
         thead {
             background-color: #eee;
@@ -21,6 +29,9 @@
         tbody tr:hover {
             background-color: #fafafa;
         }
+        paper-toast {
+            z-index: 100
+        }
     </style>
 
     <template>
@@ -30,7 +41,13 @@
                 handle-as="json"
                 on-response="handleResponse"
                 debounce-duration="3000"></iron-ajax>
+
+        <iron-ajax id="movementDelete"
+                method="DELETE"
+                on-response="handleDeleteResponse"></iron-ajax>
+
         <paper-material elevation="1">
+            <paper-toast id="movementDeletedToast">Movement Deleted</paper-toast>
             <h3>Historic</h3>
             <table>
                 <thead>
@@ -39,6 +56,7 @@
                         <th class="movement-concept">Concept</th>
                         <th class="movement-amount">Amount</th>
                         <th class="movement-total">Total</th>
+                        <th class="options">Options</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -52,6 +70,13 @@
                             <span class="currency">€</span>
                         </td>
                         <td class="movement-total-amount number">{{item.totalAmount}}<span class="currency">€</span></td>
+                        <td class="options">
+                            <paper-icon-button
+                                    on-click="deleteMovement"
+                                    icon="delete"
+                                    data-movement-id$="[[item.id]]"
+                                    ></paper-icon-button>
+                        </td>
                     </tr>
                 </template>
                 </tbody>
@@ -69,7 +94,7 @@
                     }
                 },
                 handleResponse: function(e, request) {
-                    this.movements = request.response;
+                    this.set('movements', request.response);
                 },
                 sign: function(amount) {
                     if (amount >= 0) {
@@ -83,6 +108,17 @@
                 },
                 reload: function() {
                     this.$.historicLoader.generateRequest();
+                },
+                deleteMovement: function(e) {
+                    var id = e.currentTarget.dataset.movementId;
+                    var url = 'http://127.0.0.1:8000/movements/' + id;
+                    this.$.movementDeletedToast.text = 'The movement ' + id + ' has benn deleted';
+                    this.$.movementDelete.setAttribute('url', url);
+                    this.$.movementDelete.generateRequest();
+                },
+                handleDeleteResponse: function(e, request) {
+                    this.$.movementDeletedToast.show();
+                    this.reload();
                 }
             });
         })();
