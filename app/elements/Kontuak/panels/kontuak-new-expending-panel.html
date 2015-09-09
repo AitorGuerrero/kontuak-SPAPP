@@ -5,7 +5,7 @@
 
     <template>
         <paper-material elevation="1">
-            <kontuak-form-new-movement is-expending></kontuak-form-new-movement>
+            <kontuak-form-new-movement is-expending movement="[[movement]]"></kontuak-form-new-movement>
         </paper-material>
     </template>
 
@@ -13,7 +13,13 @@
         (function() {
             'use strict';
             Polymer({
-                is: 'kontuak-new-expending-panel'
+                is: 'kontuak-new-expending-panel',
+                attributes: {
+                    movement:{
+                        type: Object,
+                        value: {}
+                    }
+                }
             });
         })();
     </script>

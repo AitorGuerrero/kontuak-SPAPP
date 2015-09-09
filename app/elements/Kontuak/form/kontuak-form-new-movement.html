@@ -19,21 +19,23 @@
         <form id="movement-form"
                 is="iron-form"
                 method="post"
-                action="http://127.0.0.1:8000/movements"
+                action="[[apiPath(movement.id)]]"
                 on-iron-form-response="handleResponse" >
             <div id="errorMessage" class$="[[computedErrorMessageClass(errorMessage)]]">{{errorMessage}}</div>
-            <input is="aitgud-generated-uuid" name="movement[id]" />
-            <input type="hidden" name="movement[amount]" value="[[realAmount(uiAmount)]]" />
+            <input is="aitgud-generated-uuid" name="movement[id]" value$="[[movement.id]]"/>
+            <input type="hidden" name="movement[amount]" value$="[[realAmount(movement.amount)]]" />
             <paper-input
                     name="movement[concept]"
                     label="Concept"
                     invalid="[[isInvalid(serverErrors.concept)]]"
                     error-message="[[serverErrors.concept]]"
+                    value="[[movement.concept]]"
                     required >
             </paper-input>
             <paper-input-container
                     invalid="[[isInvalid(serverErrors.amount)]]"
-                    required>
+                    required
+                    value="movement.amount">
                 <template is="dom-if" if="[[isExpending]]">
                     <div prefix>- </div>
                 </template>
@@ -44,7 +46,7 @@
                         type="number"
                         min="0"
                         step="0.01"
-                        value="{{uiAmount::input}}"
+                        bind-value="{{uiAmount}}"
                         invalid="[[isInvalid(serverErrors.amount)]]">
                 <paper-input-error>[[serverErrors.amount]]</paper-input-error>
             </paper-input-container>
@@ -52,7 +54,7 @@
                     name="movement[date]"
                     label="Date"
                     type="date"
-                    value="[[today()]]"
+                    value="[[movement.date]]"
                     always-float-label
                     invalid="[[isInvalid(serverErrors.date)]]"
                     error-message="[[serverErrors.date]]"
@@ -69,8 +71,22 @@
             var validationErrorMessage = 'Check the fields';
             var serverValidationErrorMessage = 'Validation Failed';
 
-            var apiResourceFormBehaviour = {
+            Polymer({
+                is: 'kontuak-form-new-movement',
                 properties: {
+                    uiAmount: {
+                        type: String,
+                        value: ''
+                    },
+                    isExpending: {
+                        type: Boolean,
+                        value: false
+                    },
+                    movement: {
+                        type: Object,
+                        value: {},
+                        observer: 'movementUpdated'
+                    },
                     serverErrors: {
                         type: Object,
                         value: {}
@@ -83,17 +99,30 @@
                 listeners: {
                     'movement-form.ironFormError': '_handleError'
                 },
-                isInvalid: function(error) {
-                    return typeof error !== 'undefined' && error;
+                handleResponse: function() {
+                    page.redirect('/');
                 },
-                computedErrorMessageClass: function(message) {
-                    if(message !== '') {
-                        return '';
+                today: function() {
+                    var a = new Date();
+                    var month = a.getMonth() + 1;
+                    var date = a.getDate();
+                    return a.getFullYear() + '-' + (month < 10 ? '0' + month : month) + '-' + (date < 10 ? '0' + date : date);
+                },
+                realAmount: function(amount) {
+                    var translatedAmount = '';
+                    if (amount !== '') {
+                        translatedAmount = Math.abs(amount);
+                        if (this.isExpending) {
+                            translatedAmount = -translatedAmount;
+                        }
                     }
-                    return 'no-error';
+                    return translatedAmount;
+                },
+                movementUpdated: function() {
+                    console.log();
+                    this.set('uiAmount', Math.abs(this.movement.amount));
                 },
                 _handleError: function(error, request) {
-                    console.log(this);
                     var message;
                     try  {
                         if (request.request.xhr.readyState === 4 && request.request.xhr.response.message) {
@@ -121,40 +150,23 @@
                         message = defaultErrorMessage;
                     }
                     this.set('errorMessage', message);
-                }
-            };
-
-            Polymer({
-                is: 'kontuak-form-new-movement',
-                behaviours: [apiResourceFormBehaviour],
-                properties: {
-                    uiAmount: {
-                        type: String,
-                        value: ''
-                    },
-                    isExpending: {
-                        type: Boolean,
-                        value: false
+                },
+                isInvalid: function(error) {
+                    return typeof error !== 'undefined' && error;
+                },
+                computedErrorMessageClass: function(message) {
+                    if(message !== '') {
+                        return '';
                     }
+                    return 'no-error';
                 },
-                handleResponse: function() {
-                    page.redirect('/');
-                },
-                today: function() {
-                    var a = new Date();
-                    var month = a.getMonth() + 1;
-                    var date = a.getDate();
-                    return a.getFullYear() + '-' + (month < 10 ? '0' + month : month) + '-' + (date < 10 ? '0' + date : date);
-                },
-                realAmount: function(amount) {
-                    var translatedAmount = '';
-                    if (amount !== '') {
-                        translatedAmount = Math.abs(amount);
-                        if (this.isExpending) {
-                            translatedAmount = -translatedAmount;
-                        }
+                apiPath: function(id) {
+                    var path = '/movements';
+                    var host = 'http://127.0.0.1:8000';
+                    if (id) {
+                        path += '/' + id;
                     }
-                    return translatedAmount;
+                    return host + path;
                 }
             });
         })();

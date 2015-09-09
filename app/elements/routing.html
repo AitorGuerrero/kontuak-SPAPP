@@ -29,6 +29,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       document.querySelector('kontuak-page-new-income').reload();
       app.route = 'new-income';
     });
+    page('/movements/expending/:id/edit/', function (context) {
+      var id = context.params.id;
+      document.querySelector(
+              'kontuak-page-expending-edit').setAttribute('movement-id', id);
+      app.route = 'expending-edit';
+    });
 
     // add #! before urls
     page({

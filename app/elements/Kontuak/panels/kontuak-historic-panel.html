@@ -76,6 +76,11 @@
                                     icon="delete"
                                     data-movement-id$="[[item.id]]"
                                     ></paper-icon-button>
+                            <a data-route="edit-expendig" href="[[editUrl(item.id)]]">
+                            <paper-icon-button
+                                    icon="create"
+                                    ></paper-icon-button>
+                            </a>
                         </td>
                     </tr>
                 </template>
@@ -119,6 +124,9 @@
                 handleDeleteResponse: function(e, request) {
                     this.$.movementDeletedToast.show();
                     this.reload();
+                },
+                editUrl: function(id) {
+                    return '/movements/expending/' + id + '/edit';
                 }
             });
         })();

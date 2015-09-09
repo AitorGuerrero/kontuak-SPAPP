@@ -1,0 +1,51 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<html lang="">
+
+<head>
+    <meta charset="utf-8">
+    <title>KontuakTest</title>
+    <link rel="import" href="../bower_components/paper-input/paper-input.html">
+</head>
+
+<dom-module id="test-test">
+    <template>
+        <div>
+        <paper-input label="LabelPis" value="[[computed(pis)]]" />
+        </div>
+        <div>
+        <input label="LabelPus" value="{{pis::input}}" />
+        </div>
+    </template>
+    <script>
+        (function() {
+            Polymer({
+                is: 'test-test',
+                properties: {
+                    pis: {
+                        type: String,
+                        value: 'Pis'
+                    }
+                },
+                computed: function(value) {
+                    return value + ' ejem';
+                }
+            });
+        })()
+    </script>
+</dom-module>
+
+<body class="">
+<test-test></test-test>
+</body>
+
+</html>
