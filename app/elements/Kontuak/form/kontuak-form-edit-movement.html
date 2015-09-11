@@ -46,10 +46,10 @@
                     suffix="€"
                     value="{{uiAmount}}"
                     invalid="[[_isInvalid(serverErrors.amount)]]" >
-                <template is="dom-if" if="[[!isSpent]]">
+                <template is="dom-if" if="[[!isSpending]]">
                     <span prefix>+</span>
                 </template>
-                <template is="dom-if" if="[[isSpent]]">
+                <template is="dom-if" if="[[isSpending]]">
                     <span prefix>-</span>
                 </template>
                 <span suffix>€</span>
@@ -92,7 +92,7 @@
                         value: {id: null},
                         observer: '_movementUpdated'
                     },
-                    isSpent: {
+                    isSpending: {
                         type: Boolean,
                         value: false
                     },
@@ -118,7 +118,7 @@
                 },
                 _movementUpdated: function() {
                     if (typeof this.movement.amount !== 'undefined') {
-                        this.set('isSpent', this.movement.amount < 0);
+                        this.set('isSpending', this.movement.amount < 0);
                         this.set('uiAmount', Math.abs(this.movement.amount));
                     }
                 },
@@ -164,7 +164,7 @@
                 _uiAmountUpdated: function() {
                     var value = '';
                     if (this.uiAmount !== '') {
-                        value = this.isSpent ?
+                        value = this.isSpending ?
                                 -(Math.abs(this.uiAmount)) :
                                 Math.abs(this.uiAmount)
                     }

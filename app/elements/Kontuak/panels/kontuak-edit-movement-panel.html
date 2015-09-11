@@ -6,7 +6,7 @@
     <template>
         <paper-material elevation="1">
             <kontuak-form-edit-movement id="form"
-                                        is-espent="[[isSpent]]"
+                                        is-spending="[[isSpending]]"
                                         movement="[[movement]]"
                     ></kontuak-form-edit-movement>
         </paper-material>
@@ -16,7 +16,13 @@
         (function() {
             'use strict';
             Polymer({
-                is: 'kontuak-edit-movement-panel'
+                is: 'kontuak-edit-movement-panel',
+                properties: {
+                    isSpending: {
+                        type: Boolean,
+                        value: false
+                    }
+                }
             });
         })();
     </script>
