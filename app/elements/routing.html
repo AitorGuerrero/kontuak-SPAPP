@@ -12,27 +12,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <script>
   window.addEventListener('WebComponentsReady', function() {
 
-    // We use Page.js for routing. This is a Micro
-    // client-side router inspired by the Express router
-    // More info: https://visionmedia.github.io/page.js/
-    page('/', function () {
-      document.querySelector('kontuak-page-home').reload();
-      app.route = 'home';
-    });
+    var pages = {
+      'home': '/',
+      'new-expending': '/movements/new/expending',
+      'new-income': '/movements/new/income',
+      'expending-edit': '/movements/expending/:id/edit/'
+    };
 
-    page('/movements/new/expending', function () {
-      app.route = 'new-expending';
-    });
-
-    page('/movements/new/income', function () {
-      app.route = 'new-income';
-    });
-    page('/movements/expending/:id/edit/', function (context) {
-      var id = context.params.id;
-      document.querySelector(
-              'kontuak-page-expending-edit').setAttribute('movement-id', id);
-      app.route = 'expending-edit';
-    });
+    for (var route in pages) {
+      (function(route, path){
+        page(path, function(context) {
+          var el = document.querySelector('[page='+route+']');
+          if (el.reload) {
+            el.reload(context)
+          }
+          app.route = route;
+        })
+      })(route, pages[route]);
+    }
 
     // add #! before urls
     page({

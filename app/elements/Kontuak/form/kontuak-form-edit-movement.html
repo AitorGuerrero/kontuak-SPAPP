@@ -22,8 +22,11 @@
                 action="[[_apiPath(movement.id)]]"
                 on-iron-form-response="_handleResponse"
                 on-iron-form-error="_handleError">
-            <div id="errorMessage" class$="[[_computedErrorMessageClass(errorMessage)]]">{{errorMessage}}</div>
-            <input is="aitgud-generated-uuid" name="movement[id]" value$="[[movement.id]]"/>
+            <paper-material id="errorMessage" class$="[[_computedErrorMessageClass(errorMessage)]]">{{errorMessage}}</paper-material>
+            <input
+                    is="aitgud-generated-uuid"
+                    name="movement[id]"
+                    value$="[[movement.id]]" />
             <paper-input
                     name="movement[concept]"
                     label="Concept"
@@ -164,7 +167,6 @@
                     if (id) {
                         method = 'put';
                     }
-                    console.log('method', method);
                     return method;
                 },
                 _uiAmountUpdated: function() {

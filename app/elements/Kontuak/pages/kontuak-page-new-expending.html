@@ -2,7 +2,7 @@
 <dom-module id="kontuak-page-new-expending">
     <template>
         <h2>New spending</h2>
-        <kontuak-edit-movement-panel
+        <kontuak-edit-movement-panel id="panel"
                 is-spending
                 on-kontuak-movement-persisted="_handleMovementCreated"
                 ></kontuak-edit-movement-panel>
@@ -12,6 +12,9 @@
         (function() {
             Polymer({
                 is: 'kontuak-page-new-expending',
+                reload: function() {
+                    this.$.panel.movement = {};
+                },
                 _handleMovementCreated: function() {
                     page.redirect('/');
                 }

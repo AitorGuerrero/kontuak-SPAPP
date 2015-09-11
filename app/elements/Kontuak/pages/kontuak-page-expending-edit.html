@@ -2,7 +2,7 @@
 
 <dom-module id="kontuak-page-expending-edit">
     <template>
-        <kontuak-movement-edit
+        <kontuak-movement-edit id="editPage"
                 movement-id="[[movementId]]">
             <h2 header>Edit spending</h2>
         </kontuak-movement-edit>
@@ -11,7 +11,10 @@
     <script>
         (function() {
             Polymer({
-                is: 'kontuak-page-expending-edit'
+                is: 'kontuak-page-expending-edit',
+                reload: function(context) {
+                    this.$.editPage.setAttribute('movement-id', context.params.id);
+                }
             });
         })();
     </script>
