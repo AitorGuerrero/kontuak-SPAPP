@@ -18,7 +18,7 @@
     <template>
         <form id="form"
                 is="iron-form"
-                method-ajaxg="[[_requestMethod(movement.id)]]"
+                method-ajax="[[_requestMethod(movement.id)]]"
                 action="[[_apiPath(movement.id)]]"
                 on-iron-form-response="_handleResponse"
                 on-iron-form-error="_handleError">
