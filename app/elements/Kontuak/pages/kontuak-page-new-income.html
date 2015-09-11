@@ -11,13 +11,6 @@
         (function() {
             Polymer({
                 is: 'kontuak-page-new-income',
-                reload: function() {
-                    var node = this.querySelector('kontuak-new-income-panel');
-                    node.parentNode.replaceChild(
-                            document.createElement('kontuak-new-income-panel'),
-                            node
-                    );
-                },
                 _handleMovementCreated: function() {
                     page.redirect('/');
                 }
