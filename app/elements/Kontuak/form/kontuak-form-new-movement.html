@@ -65,11 +65,19 @@
     </template>
 
     <script>
+
+
         (function() {
-            var noErrorClass = 'no-error';
             var defaultErrorMessage = 'There have been an error communicating to the server';
             var validationErrorMessage = 'Check the fields';
             var serverValidationErrorMessage = 'Validation Failed';
+
+            function isServerError (request) {
+                return request.request.xhr.readyState === 4 && request.request.xhr.response.message;
+            }
+            function isValidationError (request) {
+                return request.request.xhr.response.message == serverValidationErrorMessage
+            }
 
             Polymer({
                 is: 'kontuak-form-new-movement',
@@ -126,22 +134,10 @@
                 },
                 _handleError: function(error, request) {
                     var message;
+                    debugger;
                     try  {
-                        if (request.request.xhr.readyState === 4 && request.request.xhr.response.message) {
-                            if (request.request.xhr.response.message == serverValidationErrorMessage) {
-                                message = validationErrorMessage;
-                                var errors = request.request.xhr.response.errors;
-                                for (var childName in errors.children) {
-                                    if (errors.children[childName].errors) {
-                                        var childErrors = errors.children[childName].errors;
-                                        for (var errorMessage in childErrors) {
-                                            this.set('serverErrors.' + childName, childErrors[errorMessage]);
-                                        }
-                                    }
-                                }
-                            } else {
-                                message = request.request.xhr.response.message;
-                            }
+                        if (isServerError(request)) {
+                            message = this._manageServerError(request);
                         } else {
                             message = request.error;
                         }
@@ -176,6 +172,25 @@
                         method = 'put';
                     }
                     return method;
+                },
+                _manageServerValidationErrors: function(request) {
+                    var errors = request.request.xhr.response.errors;
+                    for (var childName in errors.children) {
+                        if (errors.children[childName].errors) {
+                            var childErrors = errors.children[childName].errors;
+                            for (var errorMessage in childErrors) {
+                                this.set('serverErrors.' + childName, childErrors[errorMessage]);
+                            }
+                        }
+                    }
+                },
+                _manageServerError: function(request) {
+                    if (isValidationError(request)) {
+                        this._manageServerValidationErrors(request);
+                        return validationErrorMessage;
+                    } else {
+                        return request.request.xhr.response.message;
+                    }
                 }
             });
         })();
