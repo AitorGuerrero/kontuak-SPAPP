@@ -19,25 +19,29 @@
         <form id="movement-form"
                 is="iron-form"
                 ajax-method="[[_requestMethod(movement.id)]]"
-                action="[[apiPath(movement.id)]]"
-                on-iron-form-response="handleResponse" >
-            <div id="errorMessage" class$="[[computedErrorMessageClass(errorMessage)]]">{{errorMessage}}</div>
+                action="[[_apiPath(movement.id)]]"
+                on-iron-form-response="_handleResponse"
+                on-iron-form-error="_handleError">
+            <div id="errorMessage" class$="[[_computedErrorMessageClass(errorMessage)]]">{{errorMessage}}</div>
             <input is="aitgud-generated-uuid" name="movement[id]" value$="[[movement.id]]"/>
-            <input type="hidden" name="movement[amount]" value$="[[realAmount(movement.amount)]]" />
+            <input type="hidden" name="movement[amount]" value$="[[_realAmount(movement.amount)]]" />
             <paper-input
                     name="movement[concept]"
                     label="Concept"
-                    invalid="[[isInvalid(serverErrors.concept)]]"
+                    invalid="[[_isInvalid(serverErrors.concept)]]"
                     error-message="[[serverErrors.concept]]"
                     value="[[movement.concept]]"
                     required >
             </paper-input>
             <paper-input-container
-                    invalid="[[isInvalid(serverErrors.amount)]]"
+                    invalid="[[_isInvalid(serverErrors.amount)]]"
                     required
                     value="movement.amount">
                 <template is="dom-if" if="[[isExpending]]">
                     <div prefix>- </div>
+                </template>
+                <template is="dom-if" if="[[!isExpending]]">
+                    <div prefix>+ </div>
                 </template>
                 <div suffix>€</div>
                 <label>Amount</label>
@@ -47,7 +51,7 @@
                         min="0"
                         step="0.01"
                         bind-value="{{uiAmount}}"
-                        invalid="[[isInvalid(serverErrors.amount)]]">
+                        invalid="[[_isInvalid(serverErrors.amount)]]">
                 <paper-input-error>[[serverErrors.amount]]</paper-input-error>
             </paper-input-container>
             <paper-input
@@ -56,7 +60,7 @@
                     type="date"
                     value="[[movement.date]]"
                     always-float-label
-                    invalid="[[isInvalid(serverErrors.date)]]"
+                    invalid="[[_isInvalid(serverErrors.date)]]"
                     error-message="[[serverErrors.date]]"
                     required >
             </paper-input>
@@ -107,7 +111,7 @@
                 listeners: {
                     'movement-form.ironFormError': '_handleError'
                 },
-                handleResponse: function() {
+                _handleResponse: function() {
                     page.redirect('/');
                 },
                 today: function() {
@@ -116,7 +120,7 @@
                     var date = a.getDate();
                     return a.getFullYear() + '-' + (month < 10 ? '0' + month : month) + '-' + (date < 10 ? '0' + date : date);
                 },
-                realAmount: function(amount) {
+                _realAmount: function(amount) {
                     var translatedAmount = '';
                     if (amount !== '') {
                         translatedAmount = Math.abs(amount);
@@ -134,7 +138,6 @@
                 },
                 _handleError: function(error, request) {
                     var message;
-                    debugger;
                     try  {
                         if (isServerError(request)) {
                             message = this._manageServerError(request);
@@ -149,16 +152,16 @@
                     }
                     this.set('errorMessage', message);
                 },
-                isInvalid: function(error) {
+                _isInvalid: function(error) {
                     return typeof error !== 'undefined' && error;
                 },
-                computedErrorMessageClass: function(message) {
+                _computedErrorMessageClass: function(message) {
                     if(message !== '') {
                         return '';
                     }
                     return 'no-error';
                 },
-                apiPath: function(id) {
+                _apiPath: function(id) {
                     var path = '/movements';
                     var host = 'http://127.0.0.1:8000';
                     if (id) {
