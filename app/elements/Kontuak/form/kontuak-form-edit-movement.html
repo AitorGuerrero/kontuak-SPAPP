@@ -18,7 +18,7 @@
     <template>
         <form id="form"
                 is="iron-form"
-                method$="[[_requestMethod(movement.id)]]"
+                method-ajaxg="[[_requestMethod(movement.id)]]"
                 action="[[_apiPath(movement.id)]]"
                 on-iron-form-response="_handleResponse"
                 on-iron-form-error="_handleError">
@@ -64,7 +64,12 @@
                     invalid="[[_isInvalid(serverErrors.date)]]"
                     error-message="[[serverErrors.date]]" >
             </paper-input>
-            <paper-button raised on-click="_submitForm">Create</paper-button>
+            <template is="dom-if" if="[[movement.id]]">
+                <paper-button raised on-click="_submitForm">Update</paper-button>
+            </template>
+            <template is="dom-if" if="[[!movement.id]]">
+                <paper-button raised on-click="_submitForm">Create</paper-button>
+            </template>
         </form>
     </template>
 
@@ -159,6 +164,7 @@
                     if (id) {
                         method = 'put';
                     }
+                    console.log('method', method);
                     return method;
                 },
                 _uiAmountUpdated: function() {
