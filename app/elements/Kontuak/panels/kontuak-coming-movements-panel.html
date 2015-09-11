@@ -1,0 +1,134 @@
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../../../bower_components/paper-toast/paper-toast.html">
+
+<dom-module id="kontuak-coming-movements-panel">
+    <style>
+        table {
+            width: 100%;
+        }
+        td.number {
+            text-align: right;
+        }
+        td.date {
+            text-align: center;
+        }
+        td.options {
+            text-align: right;
+        }
+        thead {
+            background-color: #eee;
+        }
+        th {
+            padding: 0.8em 1em;
+        }
+        td {
+            padding: 0.8em 0.5em;
+        }
+        tbody tr:hover {
+            background-color: #fafafa;
+        }
+        paper-toast {
+            z-index: 100
+        }
+    </style>
+
+    <template>
+        <iron-ajax id="historicLoader"
+                auto
+                url="http://127.0.0.1:8000/movements/coming"
+                handle-as="json"
+                on-response="handleResponse"
+                debounce-duration="3000"></iron-ajax>
+
+        <iron-ajax id="movementDelete"
+                method="DELETE"
+                on-response="handleDeleteResponse"></iron-ajax>
+
+        <paper-material elevation="1">
+            <paper-toast id="movementDeletedToast">Movement Deleted</paper-toast>
+            <h3>Coming transactions</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th class="movement-date">Date</th>
+                        <th class="movement-concept">Concept</th>
+                        <th class="movement-amount">Amount</th>
+                        <th class="movement-total">Total</th>
+                        <th class="options">Options</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <template is="dom-repeat" items="[[movements]]">
+                    <tr>
+                        <td class="movement-date date">{{item.date}}</td>
+                        <td class="movement-concept">{{item.concept}}</td>
+                        <td class="movement-amount number">
+                            <span class="sign">{{sign(item.amount)}}</span>
+                            <span class="absolute-amount">{{abs(item.amount)}}</span>
+                            <span class="currency">€</span>
+                        </td>
+                        <td class="movement-total-amount number">{{item.totalAmount}}<span class="currency">€</span></td>
+                        <td class="options">
+                            <paper-icon-button
+                                    on-click="deleteMovement"
+                                    icon="delete"
+                                    data-movement-id$="[[item.id]]"
+                                    ></paper-icon-button>
+                            <a data-route="edit-expendig" href="[[editUrl(item.id)]]">
+                            <paper-icon-button
+                                    icon="create"
+                                    ></paper-icon-button>
+                            </a>
+                        </td>
+                    </tr>
+                </template>
+                </tbody>
+            </table>
+        </paper-material>
+    </template>
+
+    <script>
+        (function() {
+            Polymer({
+                is: 'kontuak-coming-movements-panel',
+                properties: {
+                    movements: {
+                        type: Array
+                    }
+                },
+                handleResponse: function(e, request) {
+                    this.set('movements', request.response);
+                },
+                sign: function(amount) {
+                    if (amount >= 0) {
+                        return '+';
+                    } else {
+                        return '-';
+                    }
+                },
+                abs: function(amount) {
+                    return Math.abs(amount);
+                },
+                reload: function() {
+                    this.$.historicLoader.generateRequest();
+                },
+                deleteMovement: function(e) {
+                    var id = e.currentTarget.dataset.movementId;
+                    var url = 'http://127.0.0.1:8000/movements/' + id;
+                    this.$.movementDeletedToast.text = 'The movement ' + id + ' has benn deleted';
+                    this.$.movementDelete.setAttribute('url', url);
+                    this.$.movementDelete.generateRequest();
+                },
+                handleDeleteResponse: function(e, request) {
+                    this.$.movementDeletedToast.show();
+                    this.reload();
+                },
+                editUrl: function(id) {
+                    return '/movements/expending/' + id + '/edit';
+                }
+            });
+        })();
+    </script>
+</dom-module>

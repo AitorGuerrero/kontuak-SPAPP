@@ -1,6 +1,8 @@
 <link rel="import" href="../panels/kontuak-historic-panel.html" >
+<link rel="import" href="../panels/kontuak-coming-movements-panel.html" >
 <dom-module id="kontuak-page-home">
     <template>
+        <kontuak-coming-movements-panel id="comingMovements"></kontuak-coming-movements-panel>
         <kontuak-historic-panel id="historicPanel"></kontuak-historic-panel>
     </template>
 
@@ -10,6 +12,7 @@
                 is: 'kontuak-page-home',
                 reload: function() {
                     this.$.historicPanel.reload();
+                    this.$.comingMovements.reload();
                 }
             });
         })();
