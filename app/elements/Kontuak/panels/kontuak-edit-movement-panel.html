@@ -1,0 +1,23 @@
+<link rel="import" href="../form/kontuak-form-edit-movement.html">
+<link rel="import" href="../../../../bower_components/paper-material/paper-material.html">
+
+<dom-module id="kontuak-edit-movement-panel">
+
+    <template>
+        <paper-material elevation="1">
+            <kontuak-form-edit-movement id="form"
+                                        is-espent="[[isSpent]]"
+                                        movement="[[movement]]"
+                    ></kontuak-form-edit-movement>
+        </paper-material>
+    </template>
+
+    <script>
+        (function() {
+            'use strict';
+            Polymer({
+                is: 'kontuak-edit-movement-panel'
+            });
+        })();
+    </script>
+</dom-module>

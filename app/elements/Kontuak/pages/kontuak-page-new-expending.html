@@ -1,8 +1,11 @@
-<link rel="import" href="../panels/kontuak-new-expending-panel.html">
+<link rel="import" href="../panels/kontuak-edit-movement-panel.html">
 <dom-module id="kontuak-page-new-expending">
     <template>
         <h2>New expending</h2>
-        <kontuak-new-expending-panel></kontuak-new-expending-panel>
+        <kontuak-edit-movement-panel
+                is-spent
+                on-kontuak-movement-persisted="_handleMovementCreated"
+                ></kontuak-edit-movement-panel>
     </template>
 
     <script>
@@ -15,6 +18,9 @@
                             document.createElement('kontuak-new-expending-panel'),
                             node
                     );
+                },
+                _handleMovementCreated: function() {
+                    page.redirect('/');
                 }
             });
         })();

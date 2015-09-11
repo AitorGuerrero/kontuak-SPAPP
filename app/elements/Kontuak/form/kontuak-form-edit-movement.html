@@ -1,10 +1,10 @@
-<link rel="import" href="../../aitgud/form/input/aitgud-generated-uuid.html">
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../../../bower_components/paper-input/paper-input-container.html">
-<link rel="import" href="../../../../bower_components/paper-input/paper-input-error.html">
+<link rel="import" href="../../aitgud/form/input/aitgud-generated-uuid.html">
 
-<dom-module id="kontuak-form-new-movement">
+<dom-module id="kontuak-form-edit-movement">
 
     <style>
         #errorMessage {
@@ -16,15 +16,14 @@
         }
     </style>
     <template>
-        <form id="movement-form"
+        <form id="form"
                 is="iron-form"
-                ajax-method="[[_requestMethod(movement.id)]]"
+                method$="[[_requestMethod(movement.id)]]"
                 action="[[_apiPath(movement.id)]]"
                 on-iron-form-response="_handleResponse"
                 on-iron-form-error="_handleError">
             <div id="errorMessage" class$="[[_computedErrorMessageClass(errorMessage)]]">{{errorMessage}}</div>
             <input is="aitgud-generated-uuid" name="movement[id]" value$="[[movement.id]]"/>
-            <input type="hidden" name="movement[amount]" value$="[[_realAmount(movement.amount)]]" />
             <paper-input
                     name="movement[concept]"
                     label="Concept"
@@ -33,38 +32,39 @@
                     value="[[movement.concept]]"
                     required >
             </paper-input>
-            <paper-input-container
-                    invalid="[[_isInvalid(serverErrors.amount)]]"
-                    required
-                    value="movement.amount">
-                <template is="dom-if" if="[[isExpending]]">
-                    <div prefix>- </div>
-                </template>
-                <template is="dom-if" if="[[!isExpending]]">
-                    <div prefix>+ </div>
-                </template>
-                <div suffix>€</div>
-                <label>Amount</label>
-                <input
-                        is="iron-input"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        bind-value="{{uiAmount}}"
-                        invalid="[[_isInvalid(serverErrors.amount)]]">
-                <paper-input-error>[[serverErrors.amount]]</paper-input-error>
-            </paper-input-container>
+            <input
+                    type="hidden"
+                    name="movement[amount]"
+                    value="[[realAmount]]"
+                    is="iron-input" />
             <paper-input
+                    required
+                    label="Amount"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    suffix="€"
+                    value="{{uiAmount}}"
+                    invalid="[[_isInvalid(serverErrors.amount)]]" >
+                <template is="dom-if" if="[[!isSpent]]">
+                    <span prefix>+</span>
+                </template>
+                <template is="dom-if" if="[[isSpent]]">
+                    <span prefix>-</span>
+                </template>
+                <span suffix>€</span>
+            </paper-input>
+            <paper-input
+                    required
+                    always-float-label
                     name="movement[date]"
                     label="Date"
                     type="date"
                     value="[[movement.date]]"
-                    always-float-label
                     invalid="[[_isInvalid(serverErrors.date)]]"
-                    error-message="[[serverErrors.date]]"
-                    required >
+                    error-message="[[serverErrors.date]]" >
             </paper-input>
-            <button type="submit">Create</button>
+            <paper-button raised on-click="_submitForm">Create</paper-button>
         </form>
     </template>
 
@@ -75,6 +75,7 @@
             var defaultErrorMessage = 'There have been an error communicating to the server';
             var validationErrorMessage = 'Check the fields';
             var serverValidationErrorMessage = 'Validation Failed';
+            var apiHost = 'http://127.0.0.1:8000';
 
             function isServerError (request) {
                 return request.request.xhr.readyState === 4 && request.request.xhr.response.message;
@@ -84,20 +85,16 @@
             }
 
             Polymer({
-                is: 'kontuak-form-new-movement',
+                is: 'kontuak-form-edit-movement',
                 properties: {
-                    uiAmount: {
-                        type: String,
-                        value: ''
-                    },
-                    isExpending: {
-                        type: Boolean,
-                        value: false
-                    },
                     movement: {
                         type: Object,
-                        value: {},
-                        observer: 'movementUpdated'
+                        value: {id: null},
+                        observer: '_movementUpdated'
+                    },
+                    isSpent: {
+                        type: Boolean,
+                        value: false
                     },
                     serverErrors: {
                         type: Object,
@@ -106,35 +103,24 @@
                     errorMessage: {
                         type: String,
                         value: ''
+                    },
+                    uiAmount: {
+                        type: String,
+                        observer: '_uiAmountUpdated'
+                    },
+                    realAmount: {
+                        type: String
                     }
                 },
-                listeners: {
-                    'movement-form.ironFormError': '_handleError'
+                _handleResponse: function(e) {
+                    e.preventDefault();
+                    this.fire('kontuak-movement-persisted', {movement: this.movement});
                 },
-                _handleResponse: function() {
-                    page.redirect('/');
-                },
-                today: function() {
-                    var a = new Date();
-                    var month = a.getMonth() + 1;
-                    var date = a.getDate();
-                    return a.getFullYear() + '-' + (month < 10 ? '0' + month : month) + '-' + (date < 10 ? '0' + date : date);
-                },
-                _realAmount: function(amount) {
-                    var translatedAmount = '';
-                    if (amount !== '') {
-                        translatedAmount = Math.abs(amount);
-                        if (this.isExpending) {
-                            translatedAmount = -translatedAmount;
-                        }
-                    }
-                    return translatedAmount;
-                },
-                movementUpdated: function() {
+                _movementUpdated: function() {
                     if (typeof this.movement.amount !== 'undefined') {
-                        this.toggleAttribute('is-expending', this.movement.amount < 0);
+                        this.set('isSpent', this.movement.amount < 0);
+                        this.set('uiAmount', Math.abs(this.movement.amount));
                     }
-                    this.set('uiAmount', Math.abs(this.movement.amount));
                 },
                 _handleError: function(error, request) {
                     var message;
@@ -163,11 +149,10 @@
                 },
                 _apiPath: function(id) {
                     var path = '/movements';
-                    var host = 'http://127.0.0.1:8000';
                     if (id) {
                         path += '/' + id;
                     }
-                    return host + path;
+                    return apiHost + path;
                 },
                 _requestMethod: function(id) {
                     var method = 'post';
@@ -175,6 +160,15 @@
                         method = 'put';
                     }
                     return method;
+                },
+                _uiAmountUpdated: function() {
+                    var value = '';
+                    if (this.uiAmount !== '') {
+                        value = this.isSpent ?
+                                -(Math.abs(this.uiAmount)) :
+                                Math.abs(this.uiAmount)
+                    }
+                    this.set('realAmount', value);
                 },
                 _manageServerValidationErrors: function(request) {
                     var errors = request.request.xhr.response.errors;
@@ -194,6 +188,9 @@
                     } else {
                         return request.request.xhr.response.message;
                     }
+                },
+                _submitForm: function() {
+                    this.$.form.submit()
                 }
             });
         })();

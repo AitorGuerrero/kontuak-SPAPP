@@ -1,0 +1,48 @@
+<link rel="import" href="../panels/kontuak-edit-movement-panel.html">
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+<dom-module id="kontuak-movement-edit">
+    <template>
+        <iron-ajax id="movementLoader"
+               url="[[_constructMovementLoadUrl(movementId)]]"
+               on-response="_handleResponse"
+               handle-as="json"
+                ></iron-ajax>
+        <content selector="header"></content>
+        <kontuak-edit-movement-panel movement="[[movement]]"
+                                     on-kontuak-movement-persisted="_handleMovementPersisted"
+                ></kontuak-edit-movement-panel>
+    </template>
+
+    <script>
+        (function() {
+            Polymer({
+                is: 'kontuak-movement-edit',
+                properties: {
+                    movementId: {
+                        type: String,
+                        value: '',
+                        observer: '_manageMovementIdChanged'
+                    },
+                    movement: {
+                        type: Object,
+                        value: {}
+                    }
+                },
+                _constructMovementLoadUrl: function(id) {
+                    return 'http://127.0.0.1:8000/movements/' + id;
+                },
+                _handleResponse: function(e, response) {
+                    this.set('movement', response.xhr.response);
+                },
+                _manageMovementIdChanged: function() {
+                    if(this.movementId != '') {
+                        this.$.movementLoader.generateRequest();
+                    }
+                },
+                _handleMovementPersisted: function() {
+                    page.redirect('/');
+                }
+            });
+        })();
+    </script>
+</dom-module>

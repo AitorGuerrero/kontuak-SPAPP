@@ -1,8 +1,10 @@
-<link rel="import" href="../panels/kontuak-new-income-panel.html">
+<link rel="import" href="../panels/kontuak-edit-movement-panel.html">
 <dom-module id="kontuak-page-new-income">
     <template>
         <h2>New income</h2>
-        <kontuak-new-income-panel></kontuak-new-income-panel>
+        <kontuak-edit-movement-panel
+                on-kontuak-movement-persisted="_handleMovementCreated"
+                ></kontuak-edit-movement-panel>
     </template>
 
     <script>
@@ -15,6 +17,9 @@
                             document.createElement('kontuak-new-income-panel'),
                             node
                     );
+                },
+                _handleMovementCreated: function() {
+                    page.redirect('/');
                 }
             });
         })();

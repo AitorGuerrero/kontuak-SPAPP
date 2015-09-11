@@ -14,38 +14,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <head>
     <meta charset="utf-8">
     <title>KontuakTest</title>
-    <link rel="import" href="../bower_components/paper-input/paper-input.html">
+    <link rel="import" href="elements/kontuak/form/kontuak-form-edit-movement.html">
 </head>
 
-<dom-module id="test-test">
-    <template>
-        <div>
-        <paper-input label="LabelPis" value="[[computed(pis)]]" />
-        </div>
-        <div>
-        <input label="LabelPus" value="{{pis::input}}" />
-        </div>
-    </template>
-    <script>
-        (function() {
-            Polymer({
-                is: 'test-test',
-                properties: {
-                    pis: {
-                        type: String,
-                        value: 'Pis'
-                    }
-                },
-                computed: function(value) {
-                    return value + ' ejem';
-                }
-            });
-        })()
-    </script>
-</dom-module>
 
 <body class="">
-<test-test></test-test>
+<kontuak-form-edit-movement id="testing"
+        ></kontuak-form-edit-movement>
 </body>
 
+<script>
+    var el = document.getElementById('testing');
+
+    el.movement = {
+        concept: 'Pis',
+        amount: '-34',
+        date: '2015-01-01'
+    };
+</script>
 </html>
