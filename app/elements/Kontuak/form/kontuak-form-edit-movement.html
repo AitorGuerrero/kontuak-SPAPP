@@ -2,13 +2,20 @@
 <link rel="import" href="../../../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../aitgud/form/input/aitgud-generated-uuid.html">
 
 <dom-module id="kontuak-form-edit-movement">
 
     <style>
         #errorMessage {
-            width: 100%;
+            background-color: mistyrose;
+            color: crimson;
             text-align: left;
         }
         #errorMessage.no-error {
@@ -67,6 +74,31 @@
                     invalid="[[_isInvalid(serverErrors.date)]]"
                     error-message="[[serverErrors.date]]" >
             </paper-input>
+            <section>
+                <paper-material elevation="1">
+                    <paper-checkbox name="movement[isPeriod]" checked="{{movement.isPeriod}}">Is periodical</paper-checkbox>
+                    <template is="dom-if" if="[[movement.isPeriod]]">
+                            <section>
+                                <label>Period type</label>
+                                <paper-radio-group
+                                        selected="{{movement.period.type}}"
+                                        attr-for-selected="value"
+                                        required="[[movement.isPeriod]]" >
+                                    <paper-radio-button name="movement[period][type]" value="days">Days</paper-radio-button>
+                                    <paper-radio-button name="movement[period][type]" value="months">Months</paper-radio-button>
+                                </paper-radio-group>
+                            </section>
+                            <paper-input
+                                    required="[[movement.isPeriod]]"
+                                    name="movement[period][amount]"
+                                    label="[[_periodTypeLabel(movement.period.type)]]"
+                                    type="number"
+                                    step="1"
+                                    min="1"
+                                    value="{{movement.period.amount}}"></paper-input>
+                    </template>
+                </paper-material>
+            </section>
             <template is="dom-if" if="[[movement.id]]">
                 <paper-button raised on-click="_submitForm">Update</paper-button>
             </template>
@@ -118,6 +150,9 @@
                     },
                     realAmount: {
                         type: String
+                    },
+                    isPeriodicalMovement: {
+                        type: Boolean
                     }
                 },
                 _handleResponse: function(e) {
@@ -196,6 +231,15 @@
                     } else {
                         return request.request.xhr.response.message;
                     }
+                },
+                _periodTypeLabel: function(periodType) {
+                    console.log(periodType);
+                    if (periodType === 'days') {
+                        return 'Days amount';
+                    } else if (periodType === 'months') {
+                        return 'Months amount'
+                    }
+                    return 'Period amount';
                 },
                 _submitForm: function() {
                     this.$.form.submit()
