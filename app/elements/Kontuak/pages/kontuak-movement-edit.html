@@ -10,6 +10,7 @@
         <content selector="header"></content>
         <kontuak-edit-movement-panel movement="[[movement]]"
                                      on-kontuak-movement-persisted="_handleMovementPersisted"
+                                     is-new="[[isNew]]"
                 ></kontuak-edit-movement-panel>
     </template>
 
@@ -26,12 +27,17 @@
                     movement: {
                         type: Object,
                         value: {}
+                    },
+                    isNew: {
+                        type: Boolean,
+                        value: true
                     }
                 },
                 _constructMovementLoadUrl: function(id) {
                     return 'http://127.0.0.1:8000/movements/' + id;
                 },
                 _handleResponse: function(e, response) {
+                    this.set('isNew', false);
                     this.set('movement', response.xhr.response);
                 },
                 _manageMovementIdChanged: function() {

@@ -23,6 +23,12 @@
         }
     </style>
     <template>
+        <iron-ajax
+                url="[[_apiPath(movement.id)]]"
+                method="[[_submitMethod(isNew)]]"
+                body="[[movement]]"
+                handle-as="json"
+                ></iron-ajax>
         <form id="form"
                 is="iron-form"
                 method-ajax="[[_requestMethod(movement.id)]]"
@@ -69,33 +75,35 @@
                     invalid="[[_isInvalid(serverErrors.date)]]"
                     error-message="[[serverErrors.date]]" >
             </paper-input>
-            <section>
-                <paper-material elevation="1">
-                    <paper-checkbox checked="{{isPeriod}}">Is periodical</paper-checkbox>
-                    <template is="dom-if" if="[[isPeriod]]">
-                            <section>
-                                <label>Period type</label>
-                                <paper-radio-group
-                                        selected="{{period.type}}"
-                                        required="[[isPeriod]]" >
-                                    <paper-radio-button name="days">Days</paper-radio-button>
-                                    <paper-radio-button name="months">Months</paper-radio-button>
-                                </paper-radio-group>
-                            </section>
-                            <paper-input
-                                    required="[[isPeriod]]"
-                                    label="[[_periodTypeLabel(movement.period.type)]]"
-                                    type="number"
-                                    step="1"
-                                    min="1"
-                                    value="{{period.amount}}"></paper-input>
-                    </template>
-                </paper-material>
-            </section>
-            <template is="dom-if" if="[[movement.id]]">
+            <template is="dom-if" if="[[isNew]]">
+                <section>
+                    <paper-material elevation="1">
+                        <paper-checkbox checked="{{isPeriod}}">Is periodical</paper-checkbox>
+                        <template is="dom-if" if="[[isPeriod]]">
+                                <section>
+                                    <label>Period type</label>
+                                    <paper-radio-group
+                                            selected="{{period.type}}"
+                                            required="[[isPeriod]]" >
+                                        <paper-radio-button name="days">Days</paper-radio-button>
+                                        <paper-radio-button name="months">Months</paper-radio-button>
+                                    </paper-radio-group>
+                                </section>
+                                <paper-input
+                                        required="[[isPeriod]]"
+                                        label="[[_periodTypeLabel(movement.period.type)]]"
+                                        type="number"
+                                        step="1"
+                                        min="1"
+                                        value="{{period.amount}}"></paper-input>
+                        </template>
+                    </paper-material>
+                </section>
+            </template>
+            <template is="dom-if" if="[[!isNew]]">
                 <paper-button raised on-click="_submitForm">Update</paper-button>
             </template>
-            <template is="dom-if" if="[[!movement.id]]">
+            <template is="dom-if" if="[[isNew]]">
                 <paper-button raised on-click="_submitForm">Create</paper-button>
             </template>
         </form>
@@ -151,6 +159,10 @@
                     },
                     realAmount: {
                         type: String
+                    },
+                    isNew: {
+                        type: Boolean,
+                        value: true
                     }
                 },
                 _handleResponse: function(e) {
@@ -239,7 +251,6 @@
                     return 'Period amount';
                 },
                 _submitForm: function() {
-                    console.log(this.movement);
                     this._submitMovement(this.movement);
                 },
                 _submitMovement: function (movement) {
@@ -260,6 +271,9 @@
                     });
 
                     return movementSubmitted;
+                },
+                _submitMethod: function(isNew) {
+                    return isNew ? 'POST' : 'PUT';
                 }
             });
         })();
