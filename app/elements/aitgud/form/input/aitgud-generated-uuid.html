@@ -1,3 +1,8 @@
+<dom-module id="aitgud-generated-uuid">
+    <template>
+        <input type="hidden" name="[[name]]" value$="[[value]]" />
+    </template>
+</dom-module>
 <script>
     (function() {
         'use strict';
@@ -9,10 +14,18 @@
         }
         Polymer({
             is: 'aitgud-generated-uuid',
-            extends: 'input',
-            created: function() {
-                this.type = 'hidden';
-                this.value = generateUuid();
+            properties: {
+                value: {
+                    type: String,
+                    value: generateUuid(),
+                    observer: '_preventEmptyValue',
+                    notify: true
+                }
+            },
+            _preventEmptyValue: function() {
+                if(!this.value) {
+                    this.set('value', generateUuid())
+                }
             }
         });
     })();

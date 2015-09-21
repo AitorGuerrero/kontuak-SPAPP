@@ -30,22 +30,18 @@
                 on-iron-form-response="_handleResponse"
                 on-iron-form-error="_handleError">
             <paper-material id="errorMessage" class$="[[_computedErrorMessageClass(errorMessage)]]">{{errorMessage}}</paper-material>
-            <input
-                    is="aitgud-generated-uuid"
-                    name="movement[id]"
-                    value$="[[movement.id]]" />
+            <aitgud-generated-uuid
+                    value="{{movement.id}}" ></aitgud-generated-uuid>
             <paper-input
-                    name="movement[concept]"
                     label="Concept"
                     invalid="[[_isInvalid(serverErrors.concept)]]"
                     error-message="[[serverErrors.concept]]"
-                    value="[[movement.concept]]"
+                    value="{{movement.concept}}"
                     required >
             </paper-input>
             <input
                     type="hidden"
-                    name="movement[amount]"
-                    value="[[realAmount]]"
+                    value="{{movement.amount}}"
                     is="iron-input" />
             <paper-input
                     required
@@ -67,35 +63,32 @@
             <paper-input
                     required
                     always-float-label
-                    name="movement[date]"
                     label="Date"
                     type="date"
-                    value="[[movement.date]]"
+                    value="{{movement.date}}"
                     invalid="[[_isInvalid(serverErrors.date)]]"
                     error-message="[[serverErrors.date]]" >
             </paper-input>
             <section>
                 <paper-material elevation="1">
-                    <paper-checkbox name="movement[isPeriod]" checked="{{movement.isPeriod}}">Is periodical</paper-checkbox>
-                    <template is="dom-if" if="[[movement.isPeriod]]">
+                    <paper-checkbox checked="{{isPeriod}}">Is periodical</paper-checkbox>
+                    <template is="dom-if" if="[[isPeriod]]">
                             <section>
                                 <label>Period type</label>
                                 <paper-radio-group
-                                        selected="{{movement.period.type}}"
-                                        attr-for-selected="value"
-                                        required="[[movement.isPeriod]]" >
-                                    <paper-radio-button name="movement[period][type]" value="days">Days</paper-radio-button>
-                                    <paper-radio-button name="movement[period][type]" value="months">Months</paper-radio-button>
+                                        selected="{{period.type}}"
+                                        required="[[isPeriod]]" >
+                                    <paper-radio-button name="days">Days</paper-radio-button>
+                                    <paper-radio-button name="months">Months</paper-radio-button>
                                 </paper-radio-group>
                             </section>
                             <paper-input
-                                    required="[[movement.isPeriod]]"
-                                    name="movement[period][amount]"
+                                    required="[[isPeriod]]"
                                     label="[[_periodTypeLabel(movement.period.type)]]"
                                     type="number"
                                     step="1"
                                     min="1"
-                                    value="{{movement.period.amount}}"></paper-input>
+                                    value="{{period.amount}}"></paper-input>
                     </template>
                 </paper-material>
             </section>
@@ -132,6 +125,14 @@
                         value: {id: null},
                         observer: '_movementUpdated'
                     },
+                    period: {
+                        type: Object,
+                        value: {}
+                    },
+                    isPeriod: {
+                        type: Boolean,
+                        value: false
+                    },
                     isSpending: {
                         type: Boolean,
                         value: false
@@ -150,9 +151,6 @@
                     },
                     realAmount: {
                         type: String
-                    },
-                    isPeriodicalMovement: {
-                        type: Boolean
                     }
                 },
                 _handleResponse: function(e) {
@@ -233,7 +231,6 @@
                     }
                 },
                 _periodTypeLabel: function(periodType) {
-                    console.log(periodType);
                     if (periodType === 'days') {
                         return 'Days amount';
                     } else if (periodType === 'months') {
@@ -242,7 +239,27 @@
                     return 'Period amount';
                 },
                 _submitForm: function() {
-                    this.$.form.submit()
+                    console.log(this.movement);
+                    this._submitMovement(this.movement);
+                },
+                _submitMovement: function (movement) {
+                    var movementSubmitted = new Promise(function() {
+                        var movementPost = new XMLHttpRequest();
+                        movementPost.onreadystatechange = function() {
+                            if(movementPost.readyState === 4) {
+                                console.log(movementPost);
+                                if(movementPost.status === 200) {
+                                    movementSubmitted.resolve();
+                                } else {
+                                    movementSubmitted.reject();
+                                }
+                            }
+                        };
+                        movementPost.open('POST', apiHost + '/movements/' + movement.id);
+                        movementPost.send({movement: movement});
+                    });
+
+                    return movementSubmitted;
                 }
             });
         })();

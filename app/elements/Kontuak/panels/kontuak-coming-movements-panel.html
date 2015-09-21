@@ -36,7 +36,7 @@
 
     <template>
         <iron-ajax id="historicLoader"
-                url="http://127.0.0.1:8000/movements/coming"
+                url="http://127.0.0.1:8000/movements/history?from-date=2015-09-21&limit=6"
                 handle-as="json"
                 on-response="handleResponse"
                 debounce-duration="3000"></iron-ajax>
@@ -59,13 +59,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                <template is="dom-repeat" items="[[movements]]">
+                <template is="dom-repeat" items="[[amounts]]">
                     <tr>
-                        <td class="movement-date date">{{item.date}}</td>
-                        <td class="movement-concept">{{item.concept}}</td>
+                        <td class="movement-date date">{{item.movement.date}}</td>
+                        <td class="movement-concept">{{item.movement.concept}}</td>
                         <td class="movement-amount number">
-                            <span class="sign">{{sign(item.amount)}}</span>
-                            <span class="absolute-amount">{{abs(item.amount)}}</span>
+                            <span class="sign">{{sign(item.movement.amount)}}</span>
+                            <span class="absolute-amount">{{abs(item.movement.amount)}}</span>
                             <span class="currency">€</span>
                         </td>
                         <td class="movement-total-amount number">{{item.total_amount}}<span class="currency">€</span></td>
@@ -73,9 +73,9 @@
                             <paper-icon-button
                                     on-click="deleteMovement"
                                     icon="delete"
-                                    data-movement-id$="[[item.id]]"
+                                    data-movement-id$="[[item.movement.id]]"
                                     ></paper-icon-button>
-                            <a data-route="edit-expendig" href="[[editUrl(item.id)]]">
+                            <a data-route="edit-expendig" href="[[editUrl(itemmovement..id)]]">
                             <paper-icon-button
                                     icon="create"
                                     ></paper-icon-button>
@@ -93,12 +93,12 @@
             Polymer({
                 is: 'kontuak-coming-movements-panel',
                 properties: {
-                    movements: {
+                    amounts: {
                         type: Array
                     }
                 },
                 handleResponse: function(e, request) {
-                    this.set('movements', request.response);
+                    this.set('amounts', request.response);
                 },
                 sign: function(amount) {
                     if (amount >= 0) {
