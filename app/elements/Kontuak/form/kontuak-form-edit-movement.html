@@ -23,18 +23,14 @@
         }
     </style>
     <template>
-        <iron-ajax
-                url="[[_apiPath(movement.id)]]"
-                method="[[_submitMethod(isNew)]]"
-                body="[[movement]]"
+        <iron-ajax id="movementPutRequest"
+                url="[[_resourceUri(movement.id)]]"
+                method="PUT"
                 handle-as="json"
+                content-type="application/json"
                 ></iron-ajax>
-        <form id="form"
-                is="iron-form"
-                method-ajax="[[_requestMethod(movement.id)]]"
-                action="[[_apiPath(movement.id)]]"
-                on-iron-form-response="_handleResponse"
-                on-iron-form-error="_handleError">
+
+        <form id="form" is="iron-form">
             <paper-material id="errorMessage" class$="[[_computedErrorMessageClass(errorMessage)]]">{{errorMessage}}</paper-material>
             <aitgud-generated-uuid
                     value="{{movement.id}}" ></aitgud-generated-uuid>
@@ -45,10 +41,6 @@
                     value="{{movement.concept}}"
                     required >
             </paper-input>
-            <input
-                    type="hidden"
-                    value="{{movement.amount}}"
-                    is="iron-input" />
             <paper-input
                     required
                     label="Amount"
@@ -56,7 +48,7 @@
                     step="0.1"
                     min="0"
                     suffix="€"
-                    value="{{uiAmount}}"
+                    value="{{movement.amount}}"
                     invalid="[[_isInvalid(serverErrors.amount)]]" >
                 <template is="dom-if" if="[[!isSpending]]">
                     <span prefix>+</span>
@@ -200,7 +192,7 @@
                     }
                     return 'no-error';
                 },
-                _apiPath: function(id) {
+                _resourceUri: function(id) {
                     var path = '/movements';
                     if (id) {
                         path += '/' + id;
@@ -253,24 +245,10 @@
                 _submitForm: function() {
                     this._submitMovement(this.movement);
                 },
-                _submitMovement: function (movement) {
-                    var movementSubmitted = new Promise(function() {
-                        var movementPost = new XMLHttpRequest();
-                        movementPost.onreadystatechange = function() {
-                            if(movementPost.readyState === 4) {
-                                console.log(movementPost);
-                                if(movementPost.status === 200) {
-                                    movementSubmitted.resolve();
-                                } else {
-                                    movementSubmitted.reject();
-                                }
-                            }
-                        };
-                        movementPost.open('POST', apiHost + '/movements/' + movement.id);
-                        movementPost.send({movement: movement});
-                    });
-
-                    return movementSubmitted;
+                _submitMovement: function () {
+                    console.log(this.movement);
+                    this.$.movementPutRequest.body = {movement: this.movement};
+                    this.$.movementPutRequest.generateRequest();
                 },
                 _submitMethod: function(isNew) {
                     return isNew ? 'POST' : 'PUT';
