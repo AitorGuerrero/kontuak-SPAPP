@@ -28,6 +28,8 @@
                 method="PUT"
                 handle-as="json"
                 content-type="application/json"
+                on-response="_handleResponse"
+                on-error="_handleError"
                 ></iron-ajax>
 
         <form id="form" is="iron-form">

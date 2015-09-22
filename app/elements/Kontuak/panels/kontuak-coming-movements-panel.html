@@ -38,8 +38,7 @@
         <iron-ajax id="historicLoader"
                 url="http://127.0.0.1:8000/movements/history?from-date=2015-09-21&limit=6"
                 handle-as="json"
-                on-response="handleResponse"
-                debounce-duration="3000"></iron-ajax>
+                on-response="handleResponse"></iron-ajax>
 
         <iron-ajax id="movementDelete"
                 method="DELETE"
