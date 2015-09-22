@@ -1,0 +1,79 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="aitgud-rest-resource">
+    <template>
+        <iron-ajax id="request"
+                   url="[[_resourceUri(host, uri, entityId)]]"
+                   method="PUT"
+                   handle-as="json"
+                   body="[[_makeBody(entity)]]"
+                   content-type="application/json"
+                   on-response="_handleResponse"
+                ></iron-ajax>
+    </template>
+</dom-module>
+<script>
+    (function() {
+        'use strict';
+        Polymer({
+            is: 'aitgud-rest-resource',
+            properties: {
+                entityName: {
+                    type: String
+                },
+                entityId: {
+                    type: String
+                },
+                entity: {
+                    type: Object,
+                    notify: true
+                },
+                host: {
+                    type: String
+                },
+                uri: {
+                    type: String
+                },
+                parser: {
+                    type: Object,
+                    value: function(entity) {
+                        return entity;
+                    }
+                },
+                serializer: {
+                    type: Object,
+                    value: function(entity) {
+                        return entity;
+                    }
+                }
+            },
+            persist: function() {
+                return new Promise(function(c) {
+                    this.$.request.addEventListener('response', function(e) {
+                        c();
+                    });
+                    this.$.request.method = 'PUT';
+                    this.$.request.generateRequest();
+                }.bind(this));
+            },
+            sync: function() {
+                this.$.request.method = 'GET';
+                this.$.request.generateRequest();
+            },
+            _resourceUri: function(host, uri, id) {
+                return host + uri + '/' + id;
+            },
+            _handleResponse: function(e, request) {
+                this.set('entity', this.parser(request.response));
+                this.fire('sync', this.entity);
+            },
+            _makeBody: function (entity) {
+                var data = {};
+                data[this.entityName] = this.serializer(entity);
+
+                return data;
+            }
+        });
+    })();
+</script>

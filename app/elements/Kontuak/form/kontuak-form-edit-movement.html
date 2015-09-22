@@ -9,6 +9,7 @@
 <link rel="import" href="../../../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../aitgud/form/input/aitgud-generated-uuid.html">
+<link rel="import" href="../../aitgud/aitgud-rest-resource.html">
 
 <dom-module id="kontuak-form-edit-movement">
 
@@ -23,14 +24,13 @@
         }
     </style>
     <template>
-        <iron-ajax id="movementPutRequest"
-                url="[[_resourceUri(movement.id)]]"
-                method="PUT"
-                handle-as="json"
-                content-type="application/json"
-                on-response="_handleResponse"
-                on-error="_handleError"
-                ></iron-ajax>
+        <aitgud-rest-resource id="movementResource"
+                entity-name="movement"
+                entity-id="[[movement.id]]"
+                entity="{{movement}}"
+                host="http://127.0.0.1:8000"
+                uri="/movements"
+                ></aitgud-rest-resource>
 
         <form id="form" is="iron-form">
             <paper-material id="errorMessage" class$="[[_computedErrorMessageClass(errorMessage)]]">{{errorMessage}}</paper-material>
@@ -194,20 +194,6 @@
                     }
                     return 'no-error';
                 },
-                _resourceUri: function(id) {
-                    var path = '/movements';
-                    if (id) {
-                        path += '/' + id;
-                    }
-                    return apiHost + path;
-                },
-                _requestMethod: function(id) {
-                    var method = 'post';
-                    if (id) {
-                        method = 'put';
-                    }
-                    return method;
-                },
                 _uiAmountUpdated: function() {
                     var value = '';
                     if (this.uiAmount !== '') {
@@ -248,12 +234,7 @@
                     this._submitMovement(this.movement);
                 },
                 _submitMovement: function () {
-                    console.log(this.movement);
-                    this.$.movementPutRequest.body = {movement: this.movement};
-                    this.$.movementPutRequest.generateRequest();
-                },
-                _submitMethod: function(isNew) {
-                    return isNew ? 'POST' : 'PUT';
+                    this.$.movementResource.persist();
                 }
             });
         })();
